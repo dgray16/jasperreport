@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language-addon>
+    <addon-name>jasperreportcomponent</addon-name>
+    <language-name>xul/html</language-name>
+    <component>
+        <component-name>jasperreportcomponent</component-name>
+        <component-class>com.igalia.java.zk.components.JasperreportComponent</component-class>
+        <widget-class>components.JasperreportComponent</widget-class>
+        <mold>
+            <mold-name>default</mold-name>
+            <mold-uri>mold/jasperreport-component.js</mold-uri>
+        </mold>
+    </component>
+</language-addon>
