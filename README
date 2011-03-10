@@ -2,7 +2,7 @@ Name: JasperreportComponent
 Version: 1.0
 Requires: ZK framework. Version >= 5.0.0
 Author: Farruco Sanjurjo (fsanjurjo@igalia.com)
-Source: 
+Source: http://gitorious.org/jasperreport 
 License: AGPL
 Copyright: Igalia S.L
 
