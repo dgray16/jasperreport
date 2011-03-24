@@ -6,7 +6,7 @@
     <component>
         <component-name>jasperreportcomponent</component-name>
         <component-class>com.igalia.java.zk.components.JasperreportComponent</component-class>
-        <widget-class>components.JasperreportComponent</widget-class>
+        <widget-class>components.jasperreport.JasperreportComponent</widget-class>
         <mold>
             <mold-name>default</mold-name>
             <mold-uri>mold/jasperreport-component.js</mold-uri>
