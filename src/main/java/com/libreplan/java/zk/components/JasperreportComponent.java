@@ -14,7 +14,7 @@
  */
 
 
-package com.igalia.java.zk.components;
+package com.libreplan.java.zk.components;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,23 +54,35 @@ import org.zkoss.zul.impl.XulElement;
 public class JasperreportComponent extends Div{
 
     private static final String TASK_PDF = "pdf";
+
     private static final String TASK_HTML = "html";
+
     private static final String TASK_ODT = "odt";
 
     private static final String MEDIA_TYPE_PDF = "aplication/pdf";
+
     private static final String MEDIA_TYPE_HTML = "text/html";
+
     private static final String MEDIA_TYPE_ODT = "application/vnd.oasis.opendocument.text";
 
     private static final String IMAGE_DIR = "img/";
 
     private Locale _locale;
+
     private JRDataSource _datasource;
+
     private Map _parameters;
+
     private Map _imageMap;
+
     private String _type;
+
     private String _mediaType;
+
     private String _src;
+
     private Media _media;
+
     private int _medver;
 
     public JasperreportComponent(){}
@@ -79,9 +91,14 @@ public class JasperreportComponent extends Div{
         if (!Objects.equals(_type, type)) {
             _type = type;
 
-            if (_type == TASK_PDF) _mediaType = MEDIA_TYPE_PDF;
-            if (_type == TASK_HTML) _mediaType = MEDIA_TYPE_HTML;
-            if (_type == TASK_ODT) _mediaType = MEDIA_TYPE_ODT;
+            if (_type.equals(TASK_PDF))
+                _mediaType = MEDIA_TYPE_PDF;
+
+            if (_type.equals(TASK_HTML))
+                _mediaType = MEDIA_TYPE_HTML;
+
+            if (_type.equals(TASK_ODT))
+                _mediaType = MEDIA_TYPE_ODT;
 
             clearCachedData();
         }
@@ -113,16 +130,16 @@ public class JasperreportComponent extends Div{
         }
     }
 
-    public JRDataSource getDatasource(){
+    public JRDataSource getDatasource() {
         return _datasource;
     }
 
-    public void setSrc(String reportName){
+    public void setSrc(String reportName) {
         if (!reportName.endsWith(".jasper")) {
             reportName += ".jasper";
         }
 
-        if( !Objects.equals(_src, reportName)){
+        if ( !Objects.equals(_src, reportName)) {
             _src = reportName;
             clearCachedData();
         }
@@ -135,18 +152,18 @@ public class JasperreportComponent extends Div{
     public String getReportUrl(){
         Execution exec = Executions.getCurrent();
 
-        return exec.getScheme() + "://" + exec.getServerName() + ":" + exec.getServerPort() +
-                getEncodedSrc();
+        return exec.getScheme() + "://" + exec.getServerName() + ":" + exec.getServerPort() + getEncodedSrc();
     }
 
     public String getEncodedSrc() {
         if (_src == null) {
             final Desktop dt = Executions.getCurrent().getDesktop();
+
             return  dt != null ? dt.getExecution().encodeURL("~./img/spacer.gif"):  "";
         } else {
             StringTokenizer st = new StringTokenizer(_src, ".");
-            return Utils.getDynamicMediaURI(this, _medver++, st.nextToken(),
-                        _type.equals("jxl") ? "xls": _type);
+
+            return Utils.getDynamicMediaURI(this, _medver++, st.nextToken(), "jxl".equals(_type) ? "xls" : _type);
         }
     }
 
@@ -168,22 +185,20 @@ public class JasperreportComponent extends Div{
     }
 
     /**
-     * A utility class to implement {@link #getExtraCtrl}. It is used only by
-     * component developers.
+     * A utility class to implement {@link #getExtraCtrl}.
+     * It is used only by component developers.
      */
-    private class ExtraCtrl extends XulElement.ExtraCtrl
-    implements DynamicMedia{
+    private class ExtraCtrl extends XulElement.ExtraCtrl implements DynamicMedia{
         // -- DynamicMedia --//
         public Media getMedia(String pathInfo) {
             int indexOfImg = pathInfo.lastIndexOf(IMAGE_DIR);
 
-            // path has IMAGE_DIR, it may be an image.
+            // Path has IMAGE_DIR, it may be an image
             if (indexOfImg >= 0) {
-                String imageName = pathInfo.substring(indexOfImg
-                        + IMAGE_DIR.length());
+                String imageName = pathInfo.substring(indexOfImg + IMAGE_DIR.length());
 
-                // response file path has ".", it's not a image file
-                if (imageName.indexOf(".") < 0) {
+                // Response file path has ".", it's not a image file
+                if (!imageName.contains(".")) {
                     return getImage(imageName);
                 }
             }
@@ -191,35 +206,36 @@ public class JasperreportComponent extends Div{
         }
     }
 
-    public Media doReport(){
-        if(_media != null){
+    public Media doReport() {
+        if (_media != null) {
             return _media;
         }
 
         InputStream is = null;
 
-        try{
-            // get template file
+        try {
+            // Get template file
             final Execution exec = Executions.getCurrent();
-            is = exec.getDesktop().getWebApp()
-                    .getResourceAsStream(exec.toAbsoluteURI(_src, false));
-            if (is == null) {// try to load by class loader
-                is = Thread.currentThread().getContextClassLoader()
-                        .getResourceAsStream(_src);
-                if (is == null) {// try to load by file
+            is = exec.getDesktop().getWebApp().getResourceAsStream(exec.toAbsoluteURI(_src, false));
+
+            if (is == null) {
+                // Try to load by class loader
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(_src);
+                if (is == null) {
+                    // Try to load by file
                     File fl = new File(_src);
+
                     if (!fl.exists())
-                        throw new RuntimeException("resource for " + _src
-                                + " not found.");
+                        throw new RuntimeException("resource for " + _src + " not found.");
 
                     is = new FileInputStream(fl);
                 }
             }
 
             Map params;
-            Map exportPara = null; // the exporter parameters which user set
+            Map exportPara = null; // The exporter parameters which user set
 
-            if (_parameters==null)
+            if (_parameters == null)
                 params = new HashMap();
             else {
                 params = _parameters;
@@ -231,39 +247,42 @@ public class JasperreportComponent extends Div{
             else if (!params.containsKey(JRParameter.REPORT_LOCALE))
                 params.put(JRParameter.REPORT_LOCALE, Locales.getCurrent());
 
-            // fill the report
-            JasperPrint jasperPrint = JasperFillManager.fillReport(is,
-                    params,
-                    _datasource != null ? _datasource: new JREmptyDataSource());
+            // Fill the report
+            JasperPrint jasperPrint = JasperFillManager.fillReport(
+                    is, params, _datasource != null ? _datasource: new JREmptyDataSource());
 
-            // export one type of report
+            // Export one type of report
             if (TASK_PDF.equals(_type)) {
 
                 ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
+                // TODO resolve deprecated
                 JRExporter exporter = new JRPdfExporter();
+
                 if (exportPara != null)
                     exporter.setParameters(exportPara);
+
                 exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
                 exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, arrayOutputStream);
                 exporter.exportReport();
 
                 arrayOutputStream.close();
 
-                return _media = new AMedia("report.pdf", "pdf", _mediaType,
-                        arrayOutputStream.toByteArray());
+                return _media = new AMedia("report.pdf", "pdf", _mediaType, arrayOutputStream.toByteArray());
 
-            }else if (TASK_HTML.equals(_type)) {
+            } else if (TASK_HTML.equals(_type)) {
 
                 ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
                 JRExporter exporter = new JRHtmlExporter();
+
                 if (exportPara != null)
                     exporter.setParameters(exportPara);
+
                 exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
                 exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, arrayOutputStream);
 
-                // set IMAGES_MAP parameter to prepare get backward IMAGE_MAP parameter
+                // Set IMAGES_MAP parameter to prepare get backward IMAGE_MAP parameter
                 exporter.setParameter(JRHtmlExporterParameter.IMAGES_MAP, new HashMap());
                 exporter.setParameter(JRHtmlExporterParameter.IMAGES_URI, IMAGE_DIR);
                 exporter.exportReport();
@@ -271,50 +290,46 @@ public class JasperreportComponent extends Div{
                 arrayOutputStream.close();
 
                 _imageMap = (Map)exporter.getParameter(JRHtmlExporterParameter.IMAGES_MAP);
-                return _media = new AMedia("report.html", "html", _mediaType,
-                        arrayOutputStream.toByteArray());
 
-            }else if (TASK_ODT.equals(_type)) {
+                return _media = new AMedia("report.html", "html", _mediaType, arrayOutputStream.toByteArray());
+
+            } else if (TASK_ODT.equals(_type)) {
 
                 ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 
                 JRExporter exporter = new JROdtExporter();
+
                 if (exportPara != null)
                     exporter.setParameters(exportPara);
+
                 exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
                 exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, arrayOutputStream);
                 exporter.exportReport();
 
                 arrayOutputStream.close();
 
-                return _media = new AMedia("report.odt", "odt",
-                        _mediaType, arrayOutputStream.toByteArray());
+                return _media = new AMedia("report.odt", "odt", _mediaType, arrayOutputStream.toByteArray());
 
             }  else {
-                throw new RuntimeException("Type: " + _type
-                        + " is not supported in JasperReports.");
+                throw new RuntimeException("Type: " + _type + " is not supported in JasperReports.");
             }
 
-        }catch(Exception e)
-        {
+        } catch(Exception e) {
             throw UiException.Aide.wrap(e);
-        }finally {
+        } finally {
             if (is != null) {
                 try {
                     is.close();
-                } catch (IOException e) {
-                    //Do nothing
-                }
+                } catch (IOException ignored) {}
             }
         }
     }
 
     /**
-     * When output file type is HTML, return image in AMedia
-    */
+     * When output file type is HTML, return image in AMedia.
+     */
     private AMedia getImage(String imageName) {
-        byte[] imageBytes = (byte[])_imageMap.get(imageName);
-        return new AMedia(imageName, "", "image/gif", imageBytes);
+        return new AMedia(imageName, "", "image/gif", (byte[])_imageMap.get(imageName));
     }
 
     private void clearCachedData(){
