@@ -160,6 +160,7 @@ public class JasperreportComponent extends Div{
             final Desktop dt = Executions.getCurrent().getDesktop();
 
             return  dt != null ? dt.getExecution().encodeURL("~./img/spacer.gif"):  "";
+
         } else {
             StringTokenizer st = new StringTokenizer(_src, ".");
 
@@ -179,7 +180,9 @@ public class JasperreportComponent extends Div{
         return _locale;
     }
 
-    // -- ComponentCtrl --//
+    /**
+     * ComponentCtrl
+     */
     public Object getExtraCtrl() {
         return new ExtraCtrl();
     }
